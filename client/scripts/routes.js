@@ -15,7 +15,13 @@ function config($stateProvider, $urlRouterProvider) {
       views: {
         'tab-leaderboard': {
           templateUrl: 'client/templates/leaderboard.html',
-          controller: 'LeaderboardCtrl as leaderboard'
+          controller: 'LeaderboardCtrl as leaderboard',
+          resolve: {
+            players() {
+              return Meteor.subscribe('players');
+            }
+          }
+
         }
       }
     })
@@ -24,7 +30,12 @@ function config($stateProvider, $urlRouterProvider) {
       views: {
         'tab-players': {
           templateUrl: 'client/templates/players.html',
-          controller: 'PlayersCtrl as players'
+          controller: 'PlayersCtrl as players',
+          resolve: {
+            players() {
+              return Meteor.subscribe('players');
+            }
+          }
         }
       }
     })
@@ -33,7 +44,13 @@ function config($stateProvider, $urlRouterProvider) {
       views: {
         'tab-teams': {
           templateUrl: 'client/templates/teams.html',
-          controller: 'TeamsCtrl as teams'
+          controller: 'TeamsCtrl as teams',
+          resolve: {
+            teams() {
+              return Meteor.subscribe('teams');
+            }
+          }
+
         }
       }
     })
@@ -42,7 +59,19 @@ function config($stateProvider, $urlRouterProvider) {
       views: {
         'tab-games': {
           templateUrl: 'client/templates/games.html',
-          controller: 'GamesCtrl as games'
+          controller: 'GamesCtrl as games',
+          resolve: {
+            games() {
+              return Meteor.subscribe('games');
+            },
+            teams() {
+              return Meteor.subscribe('teams');
+            },
+            players() {
+              return Meteor.subscribe('players');
+            }
+          }
+
         }
       }
     })

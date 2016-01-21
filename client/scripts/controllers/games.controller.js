@@ -33,7 +33,7 @@ function GamesCtrl ($scope, $reactive, $ionicPopup, NewGame, GameScore) {
       NewGame.showModal();
     }
   }
-
+  
   this.helpers({
     isAdmin() {
       let user = Meteor.users.findOne({ _id: Meteor.userId() }, { fields: { profile: 1 } });
