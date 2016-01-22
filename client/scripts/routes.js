@@ -8,15 +8,25 @@ function config($stateProvider, $urlRouterProvider) {
     .state('tab', {
       url: '/tab',
       abstract: true,
-      templateUrl: 'client/templates/tabs.html'
+      templateUrl: 'client/templates/tabs.html',
+      resolve: {
+        players() {
+          return Meteor.subscribe('players');
+        },
+        teams() {
+          return Meteor.subscribe('teams');
+        },
+        games() {
+          return Meteor.subscribe('games');
+        }
+      }
     })
     .state('tab.leaderboard', {
       url: '/leaderboard',
       views: {
         'tab-leaderboard': {
           templateUrl: 'client/templates/leaderboard.html',
-          controller: 'LeaderboardCtrl as leaderboard'
-        }
+          controller: 'LeaderboardCtrl as leaderboard'        }
       }
     })
     .state('tab.players', {

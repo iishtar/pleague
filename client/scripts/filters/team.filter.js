@@ -11,15 +11,7 @@ function team () {
         if (ss.name) {
             return ss.name;
         } else {
-            let p1 = Players.findOne({ _id: ss.players[0] });
-            let p2 = Players.findOne({ _id: ss.players[1] });
-            if (!p1) {
-                p1 = { name: 'unknown' };
-            }
-            if (!p2) {
-                p2 = { name: 'unknown' };
-            }
-            return p1.name + ' and ' + p2.name;            
+            return ss.players[0].name + ' and ' + ss.players[1].name;            
         }
     } else {
         return 'Team not found';

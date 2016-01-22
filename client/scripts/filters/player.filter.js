@@ -16,9 +16,8 @@ angular
   .filter('player_name', player_name);
  
 function player_name () {
-  return function (player_id) {
-    if (!player_id) return;
-    let player = Players.findOne({ _id: player_id });
+  return function (player) {
+    if (!player) return;
     return player.name;
   };
 }

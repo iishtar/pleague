@@ -7,108 +7,46 @@ function GameScore($rootScope, $ionicModal) {
   this.scored = scored;
   
   function scored(team, inprogress) {
-    if (team === 'red') {
-      Games.update(inprogress._id, {
-        $set: { teamRedScore: inprogress.teamRedScore + 1 }
-      });
-      console.log('red scored!');
-      if (inprogress.teamRedScore++ > 5) {
-        Games.update(inprogress._id, {
-          $set: { winner: inprogress.teamRed,
-          endDate: Date.now() }
-        });
-
-
-        let red = Teams.findOne({ _id: inprogress.teamRed });
-        let blue = Teams.findOne({ _id: inprogress.teamBlue });
-        
-          let redp1 = Players.findOne({ _id: red.players[0] });
-          let redp2 = Players.findOne({ _id: red.players[1] });
-          let bluep1 = Players.findOne({ _id: blue.players[0] });
-          let bluep2 = Players.findOne({ _id: blue.players[1] });
-
-          let redelo = (redp1.elo + redp2.elo)/2;
-          let blueelo = (bluep1.elo + bluep2.elo)/2;
-
-          var elochanged = calculateELORatingChange(redelo, blueelo, 150);
-          console.log(elochanged);
-
-            Players.update({_id: redp1._id},
-              {
-                $set: {elo: redp1.elo + elochanged.win}
-              }
-            )
-            Players.update({_id: redp2._id},
-              {
-                $set: {elo: redp2.elo + elochanged.win}
-              }
-            )
-            Players.update({_id: bluep1._id},
-              {
-                $set: {elo: bluep1.elo + elochanged.loss}
-              }
-            )
-            Players.update({_id: bluep2._id},
-              {
-                $set: {elo: bluep2.elo + elochanged.loss}
-              }
-            )
-
-
-        
-        console.log('red won!');
+    try {
+      let gameScore = { gameId: inprogress._id, teamRedScore: inprogress.teamRedScore, teamBlueScore: inprogress.teamBlueScore };
+      if (team === 'red') {
+        console.log('red scored...');
+        gameScore.teamRedScore = gameScore.teamRedScore + 1;
+        gameScore.winner = inprogress.teamRed;
+        gameScore.endDate = Date.now();
+        if (gameScore.teamRedScore == 7) { //TODO: move this to a configurable constant
+          Meteor.call('teamWon', gameScore, function(error){
+            if (error) {
+              console.log(error);
+            }
+          });
+          console.log('red won!');
+          return;
+        }
+      } else {
+        console.log('blue scored...');
+        gameScore.teamBlueScore = gameScore.teamBlueScore + 1;
+        gameScore.winner = inprogress.teamBlue;
+        gameScore.endDate = Date.now();
+        if (gameScore.teamBlueScore == 7) { //TODO: move this to a configurable constant
+          Meteor.call('teamWon', gameScore, function(error){
+            if (error) {
+              console.log(error);
+            }
+          });
+          console.log('blue won!');
+          return;
+        }
       }
-    } else {
-      Games.update(inprogress._id, {
-        $set: { teamBlueScore: inprogress.teamBlueScore + 1 }
+      Meteor.call('teamScored', gameScore, function(error){
+        if (error) {
+          console.log(error);
+        }
       });
-      console.log('blue scored!');
-      if (inprogress.teamBlueScore++ > 5) {
-        Games.update(inprogress._id, {
-          $set: { winner: inprogress.teamBlue,
-          endDate: Date.now() }
-        });
-        
-        
-        let red = Teams.findOne({ _id: inprogress.teamRed });
-        let blue = Teams.findOne({ _id: inprogress.teamBlue });
-        
-          let redp1 = Players.findOne({ _id: red.players[0] });
-          let redp2 = Players.findOne({ _id: red.players[1] });
-          let bluep1 = Players.findOne({ _id: blue.players[0] });
-          let bluep2 = Players.findOne({ _id: blue.players[1] });
 
-          let redelo = (redp1.elo + redp2.elo)/2;
-          let blueelo = (bluep1.elo + bluep2.elo)/2;
-
-          let elochanged = calculateELORatingChange(redelo, blueelo, 150);
-          console.log(elochanged);
-
-            Players.update({_id: bluep1._id},
-              {
-                $set: {elo: bluep1.elo + elochanged.win}
-              }
-            )
-            Players.update({_id: bluep2._id},
-              {
-                $set: {elo: bluep2.elo + elochanged.win}
-              }
-            )
-            Players.update({_id: redp1._id},
-              {
-                $set: {elo: redp1.elo + elochanged.loss}
-              }
-            )
-            Players.update({_id: redp2._id},
-              {
-                $set: {elo: redp2.elo + elochanged.loss}
-              }
-            )
-
-        
-        
-        console.log('blue won!');
-      }
+    } catch (e) {
+      console.log('Hjalp!!');
+      console.log(e);
     }
   }
   

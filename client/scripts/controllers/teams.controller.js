@@ -13,8 +13,13 @@ function TeamsCtrl ($scope, $reactive, NewTeam) {
   }
 
   this.helpers({
-    data() {
-      return Teams.find();
+    data: () => {
+      return Teams.find({}, {transform: function(doc) {
+        doc.playerOne = Players.findOne({ _id: doc.players[0]._id });
+        doc.playerTwo = Players.findOne({ _id: doc.players[1]._id });
+        return doc;
+        }
+      });
     }
   });
 
