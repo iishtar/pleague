@@ -20,6 +20,7 @@ import gamedetail from '/imports/components/games/game-detail'
 import settings from '/imports/components/settings/settings';
 import newuser from '/imports/components/settings/new-user';
 import todosList from '/imports/components/todosList/todosList';
+import chart from '/imports/components/chart/chart';
 
 // Services
 import gameservice from '/imports/services/game-score.service';
@@ -51,7 +52,8 @@ const App = angular.module('PLeague', [
   'userservice',
   'filters',
   'directives',
-  'todosList'
+  'todosList',
+  'chart'
 ]);
 
 class TabCtrl {

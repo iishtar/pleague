@@ -1,0 +1,74 @@
+<div>
+<canvas id="myCanvas" width="700" height="400" style="border:1px solid #d3d3d3;">
+Your browser does not support the HTML5 canvas tag.</canvas>
+<script>
+var scaley = 1;
+
+function drawbg(ctx) {
+
+	ctx.canvas.width = window.innerWidth*0.99;
+    ctx.canvas.height = window.innerHeight*0.9;
+	scaley = ctx.canvas.height/2500.0;
+
+	ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+	ctx.strokeStyle = '#dddddd';
+	ctx.lineWidth = 1;
+	ctx.font = "10px Arial";
+	ctx.textAlign="left"; 
+	for (elo = 100; elo < 2500; elo += 200) {
+		if (elo == 1500)
+			ctx.lineWidth = 3;
+		else
+			ctx.lineWidth = 1;
+	
+		y = ctx.canvas.height - elo*scaley;
+		ctx.beginPath();
+		ctx.moveTo(10,y);
+		ctx.lineTo(ctx.canvas.width-10,y);
+		ctx.stroke();
+		
+		ctx.fillStyle = '#000000';
+		ctx.fillText("" + elo,ctx.canvas.width/10,y);
+	}
+	ctx.textAlign="right"; 
+	ctx.fillText(new Date(),ctx.canvas.width,20);
+}
+
+function drawLine(ctx,data,name,ind) {
+
+	console.log(data);
+	if (data.length == 1) {
+		row = [data[0],data[0]];
+	} else {
+		row = data;
+	}
+	colors = ['red','blue','green','purple','black','orange'];
+	color = colors[ind % colors.length];
+	stepx = (ctx.canvas.width-10)/(row.length-1);
+	scaley = ctx.canvas.height/2500.0;
+	
+	var y;
+	ctx.font = "20px Arial";
+	ctx.lineCap = "round";
+	ctx.textAlign="right"; 
+	ctx.beginPath();
+	ctx.lineWidth = 5;
+	ctx.moveTo(0,ctx.canvas.height - scaley*row[0]);
+	for (var j = 1; j < row.length; j++){
+		y = ctx.canvas.height - scaley*row[j];
+		ctx.lineTo(j*stepx,y);
+	}
+	ctx.strokeStyle = color;
+	ctx.stroke();
+
+	ctx.fillStyle = color;
+	y = ctx.canvas.height - scaley*row[row.length-1];
+	ctx.fillText(name,(Math.random()*0.5+0.5)*ctx.canvas.width-5,y-10);
+	
+}
+var c = document.getElementById("myCanvas");
+var ctx = c.getContext("2d");
+ctx.fillText("Loading",ctx.canvas.width/2,ctx.canvas.height/2);
+</script>
+</div>
+
