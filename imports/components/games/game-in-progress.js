@@ -7,16 +7,12 @@ import { Games } from '/imports/api/games.js';
 import template from '/imports/components/games/game-in-progress.html';
 
 class GameInProgressCtrl {
-  constructor($scope, $state, $filter, $interval, $ionicPopup, $ionicHistory, gameScoreService) {
+  constructor($scope, $filter, $timeout, $ionicPopup, gameScoreService) {
     $scope.viewModel(this);
-    this.$state = $state;
     this.$filter = $filter;
-    this.$interval = $interval;
+    this.$timeout = $timeout;
     this.$ionicPopup = $ionicPopup;
-    this.$ionicHistory = $ionicHistory;
     this.gameScoreService = gameScoreService;
-
-    console.log('in gameInProgress controller');
 
     this.enabled = true;
     this.showControls = this.controls;
@@ -28,24 +24,17 @@ class GameInProgressCtrl {
     });
   }
 
-  redWinElo() {
-    if (this.game)
-      return this.gameScoreService.getTeamEloOnWin(this.game.teamRed._id, this.game.teamBlue._id).win;
-  }
-
-  blueWinElo() {
-    if (this.game)
-      return this.gameScoreService.getTeamEloOnWin(this.game.teamBlue._id, this.game.teamRed._id).win;
-  }
-
- redWinChance() {
-    if (this.game)
-      return this.gameScoreService.getTeamEloOnWin(this.game.teamRed._id, this.game.teamBlue._id).percent;
-  }
-
-  blueWinChance() {
-    if (this.game)
-      return this.gameScoreService.getTeamEloOnWin(this.game.teamBlue._id, this.game.teamRed._id).percent;
+  winStats() {
+    if (this.game) {
+      const redWins = this.gameScoreService.getTeamEloOnWin(this.game.teamRed._id, this.game.teamBlue._id);
+      const blueWins = this.gameScoreService.getTeamEloOnWin(this.game.teamBlue._id, this.game.teamRed._id);
+      return {
+        redWinElo: redWins.win,
+        blueWinElo: blueWins.win,
+        redWinChance: redWins.percent,
+        blueWinChance: blueWins.percent
+      }
+    }
   }
 
   duration() {
@@ -54,8 +43,58 @@ class GameInProgressCtrl {
   }
 
   scored(teamId, player) {
-    console.log(teamId, player);
     this.gameScoreService.scored(teamId, player, this.game);
+  }
+
+  /**
+   * Start preparing to revert a goal made by this player
+   *
+   * @param {number} teamId the team id
+   * @param {number} playerId the player id
+   *
+   * @return {void}
+   */
+  prepareRevertGoal(teamId, playerId) {
+    this.prepareTimer = this.$timeout(() => {
+      this.reverting = playerId;
+      // startup the actual reverting
+      this.revertTimer = this.$timeout(() => {
+        this.revertOK = playerId;
+      }, 2000);
+
+    }, 1000);
+  }
+
+  /**
+   * Revert a goal made by this user. The prepareRevertGoal() must be called prior to this method.
+   *
+   * @param {number} teamId the team id
+   * @param {number} playerId the player id
+   *
+   * @return {void}
+   */
+  revertGoal(teamId, playerId, $event) {
+    if (this.revertTimer && this.reverting === playerId && this.revertOK) {
+      if ($event && $event.originalEvent) {
+        $event.originalEvent.preventDefault();
+        $event.originalEvent.stopPropagation();
+      }
+
+      // Do the actual reverting
+      this.gameScoreService.revertScored(teamId, playerId, this.game);
+    }
+
+    // Let's cleanup after ourselves...
+    if (this.revertTimer) {
+      this.$timeout.cancel(this.revertTimer);
+      delete this.revertOK;
+      delete this.revertTimer;
+    }
+    if (this.prepareTimer) {
+      this.$timeout.cancel(this.prepareTimer);
+      delete this.reverting;
+      delete this.prepareTimer;
+    }
   }
 
   trashGameInProgressModal() {
@@ -79,7 +118,7 @@ export default angular.module('gameinprogress', [
 ])
   .component('gameInProgress', {
     templateUrl: 'imports/components/games/game-in-progress.html',
-    controller: ['$scope', '$state', '$filter', '$interval', '$ionicPopup', '$ionicHistory', 'gameScoreService', GameInProgressCtrl],
+    controller: ['$scope', '$filter', '$timeout', '$ionicPopup', 'gameScoreService', GameInProgressCtrl],
     bindings: {
       game: '<',
       controls: '<'

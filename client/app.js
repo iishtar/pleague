@@ -25,6 +25,8 @@ import chart from '/imports/components/chart/chart';
 // Services
 import gameservice from '/imports/services/game-score.service';
 import userservice from '/imports/services/users.service';
+import playersservice from '/imports/services/players.service';
+import teamsservice from '/imports/services/teams.service';
 
 // Filters
 import filters from '/imports/filters/filters';
@@ -50,6 +52,8 @@ const App = angular.module('PLeague', [
   'newuser',
   'gameservice',
   'userservice',
+  'playersservice',
+  'teamsservice',
   'filters',
   'directives',
   'todosList',
