@@ -71,7 +71,7 @@ class GameScoreService {
       }
       // TODO this is F###ing unreadable. Use (++inprogress.teamBlueScore === 7)
       if (inprogress.teamRedScore++ > 5) {
-        var eloChange = this.updateELO(inprogress.teamRed._id, inprogress.teamBlue._id);
+        var eloChange = this.updateELO(inprogress.teamRed._id, inprogress.teamBlue._id,inprogress);
         Games.update(inprogress._id, {
           $set: {
             winner: inprogress.teamRed._id,
@@ -99,7 +99,7 @@ class GameScoreService {
       // TODO this is F###ing unreadable. Use (++inprogress.teamBlueScore === 7)
       if (inprogress.teamBlueScore++ > 5) {
 
-        var eloChange = this.updateELO(inprogress.teamBlue._id, inprogress.teamRed._id);
+        var eloChange = this.updateELO(inprogress.teamBlue._id, inprogress.teamRed._id,inprogress);
         Games.update(inprogress._id, {
           $set: {
             winner: inprogress.teamBlue,
@@ -112,17 +112,18 @@ class GameScoreService {
     }
   }
 
-  updateELO(winTeamId, loseTeamId) {
+  updateELO(winTeamId, loseTeamId, inprogress) {
 
+	let gameId = inprogress._id;
     let winTeam = Teams.findOne({ _id: winTeamId });
     let loseTeam = Teams.findOne({ _id: loseTeamId });
 
     let eloChange = this.getTeamEloOnWin(winTeam, loseTeam).win;
 
-    this.playersService.eloInc(winTeam.players[0], eloChange);
-    this.playersService.eloInc(winTeam.players[1], eloChange);
-    this.playersService.eloInc(loseTeam.players[0], -eloChange);
-    this.playersService.eloInc(loseTeam.players[1], -eloChange);
+    this.playersService.eloInc(winTeam.players[0], eloChange, inprogress);
+    this.playersService.eloInc(winTeam.players[1], eloChange, inprogress);
+    this.playersService.eloInc(loseTeam.players[0], -eloChange, inprogress);
+    this.playersService.eloInc(loseTeam.players[1], -eloChange, inprogress);
 
     let teamEloChanged = this.calculateELORatingChange(winTeam.teamElo, loseTeam.teamElo, this.maxEloMovement);
     console.log('Team ELO change by: ', teamEloChanged);

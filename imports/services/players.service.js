@@ -8,10 +8,18 @@ class PlayersService {
   constructor() {
   }
   
-  eloInc(playerId, elo) {
+  eloInc(playerId, elo, game) {
+    let newElo = Players.findOne({ _id: playerId },{elo:''}).elo + elo;  
     Players.update({ _id: playerId },
       {
-        $inc: { elo: elo }
+        $inc : { elo: elo },
+        $push : { 
+          history : { 
+            elo : newElo,
+            game_id : game._id,
+            when : new Date() //game.endDate not set yet?
+          }
+        }
       }
     );
   }
